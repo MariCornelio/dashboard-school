@@ -1,0 +1,28 @@
+<div [ngClass]="classSideBar">
+  <p-menu [model]="items" styleClass="w-60 md:w-80 h-full relative">
+    <ng-template #start>
+      <div class="inline-flex items-center gap-1 px-2 py-2">
+        <img width="40" src="logo-school.png" alt="Logo">
+        <span class="text-xl font-semibold">BITVERSO</span>
+      </div>
+    </ng-template>
+    <ng-template #item let-item>
+      <a pRipple class="flex items-center p-menu-item-link" [routerLink]="[item.routerLink]">
+        <span [class]="item.icon" routerLinkActive="text-teal-500" [routerLinkActiveOptions]="{ exact: true }"></span>
+        <span class="ml-2" routerLinkActive="text-teal-500 font-bold" [routerLinkActiveOptions]="{ exact: true }">{{
+          item.label }}</span>
+      </a>
+    </ng-template>
+    <ng-template #end>
+      <button pRipple
+        class="w-full flex items-start p-2 pl-4 absolute bottom-0 border-t border-gray-200  hover:bg-[#f1f5f9]  cursor-pointer">
+        <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" class="mr-2"
+          shape="circle" />
+        <span class="inline-flex flex-col">
+          <span class="font-bold">Amy Elsner</span>
+          <span class="text-sm">Admin</span>
+        </span>
+      </button>
+    </ng-template>
+  </p-menu>
+</div>

@@ -1,0 +1,12 @@
+<div
+  class="h-16 flex justify-between items-center pr-4 pl-4 bg-white rounded-md border-1 border-gray-200 transition-all duration-300">
+  <div class="flex items-center">
+    <button class="p-2 rounded-full cursor-pointer hover:bg-gray-100 ignore-click" (click)="onMenuToggle()">
+      <i class="pi pi-bars"></i>
+    </button>
+
+    <p-breadcrumb [model]="items" [home]="home" />
+
+  </div>
+  <p-avatar image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png" shape="circle" />
+</div>

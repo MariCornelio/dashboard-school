@@ -1,0 +1,14 @@
+<div class="min-h-screen flex p-4 w-full">
+  <div class="">
+    <app-sidebar />
+  </div>
+  <div (click)="onClick($event)" class=" flex flex-col w-full justify-between pb-0 pl-4 overflow-x-auto">
+    <div class="">
+      <app-header />
+      <div class="mt-4">
+        <router-outlet />
+      </div>
+    </div>
+    <p>footer</p>
+  </div>
+</div>
