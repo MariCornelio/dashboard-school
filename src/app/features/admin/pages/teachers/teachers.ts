@@ -47,10 +47,13 @@ import { ModalTeacher } from '../../components/modal-teacher/modal-teacher';
 export class Teachers implements OnInit {
   teachers!: TeacherModel[];
   teachersCoursesMap: Record<string, CoursesModel[]> = {};
+  //un loader para los cursos de cada celda correspondiente a cada profesor
   loadingCoursesMap: Record<string, boolean> = {};
   loading: boolean = true;
   paginator: boolean = false;
   skeletonArray = Array(10);
+  //para el loader que se ejecuta antes de traer todas las asignaciones de cada profesor
+  loadingAssignmentsTeacher: Record<string, boolean> = {};
 
   //Se coloca para que no salgan varios toast de error
   errorShow: boolean = false;
@@ -130,6 +133,7 @@ export class Teachers implements OnInit {
   }
 
   openEditTeacher(teacher: TeacherModel, courses: CoursesModel[]): void {
+    this.loadingAssignmentsTeacher[teacher.id!] = true;
     this.assignmentSvc
       .getAssignmentsByTeacher(teacher.id!)
       .pipe(
@@ -144,6 +148,9 @@ export class Teachers implements OnInit {
         }),
         tap((assignments) => {
           this.componentModalTeacher.editTeacher(teacher, courses, assignments);
+        }),
+        finalize(() => {
+          this.loadingAssignmentsTeacher[teacher.id!] = false;
         })
       )
       .subscribe();

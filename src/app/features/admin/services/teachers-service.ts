@@ -23,6 +23,6 @@ export class TeachersService {
     teacherId: string,
     data: TeacherModel
   ): Observable<TeacherModel> {
-    return this.http.put<TeacherModel>(`${this.apiURL}/${teacherId}`, data);
+    return this.http.patch<TeacherModel>(`${this.apiURL}/${teacherId}`, data);
   }
 }

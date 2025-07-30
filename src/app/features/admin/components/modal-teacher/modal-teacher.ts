@@ -68,6 +68,7 @@ export class ModalTeacher implements OnInit {
   files!: File[];
   courses: CoursesModel[] = [];
   loadingCourses: boolean = true;
+  isSaving: boolean = false;
 
   filterAlpha: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
   filterAlphaNum: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s]+$/;
@@ -153,6 +154,7 @@ export class ModalTeacher implements OnInit {
     );
   }
 
+  //remover curso de chips
   removeCourse(courseToRemove: CoursesModel): void {
     const currentCourses: CoursesModel[] =
       this.teacherForm.get('courses')?.value || [];
@@ -185,10 +187,10 @@ export class ModalTeacher implements OnInit {
   onSubmit(): void {
     this.teacherFormSubmitted = true;
     if (this.teacherForm.invalid) return;
-    // si el formulario es valido
 
+    // si el formulario es valido
+    this.isSaving = true;
     const formValues: teacherFormModel = this.teacherForm.value;
-    console.log(formValues);
 
     const teacherData: TeacherModel = {
       name: formValues.name,
@@ -200,6 +202,9 @@ export class ModalTeacher implements OnInit {
     };
 
     const selectedCourses: CoursesModel[] = formValues.courses;
+    const selectedCoursesIds: string[] = selectedCourses.map(
+      (course: CoursesModel) => course.id!
+    );
 
     if (!this.isEditMode) {
       this.teacherSvc
@@ -248,12 +253,59 @@ export class ModalTeacher implements OnInit {
             });
           }),
           finalize(() => {
+            this.isSaving = false;
             this.visible = false;
             this.resetFormulario();
           })
         )
         .subscribe();
     } else {
+      this.teacherSvc
+        .updateTeacher(this.teacher.id!, teacherData)
+        .pipe(
+          catchError((err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al editar profesor',
+              detail: 'No se pudo guardar el profesor. Inténtalo nuevamente.',
+            });
+            console.error('Fallo al actualizar profesor');
+            return throwError(() => err);
+          }),
+          switchMap(() => {
+            return this.assignmentsSvc
+              .syncAssignmentsForTeacher(
+                this.teacher.id!,
+                selectedCoursesIds,
+                this.currentAssignments
+              )
+              .pipe(
+                catchError((err) => {
+                  this.messageService.add({
+                    severity: 'warn',
+                    summary: 'Error al actualizar la asignación de cursos',
+                    detail:
+                      'El profesor fue actualizado, pero falló la asignación de cursos.',
+                  });
+                  console.error('Fallo la actualizacion de asignaciones', err);
+                  return throwError(() => err);
+                })
+              );
+          }),
+          tap(() => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Profesor actualizado',
+              detail: 'Los datos se guardaron correctamente',
+            });
+          }),
+          finalize(() => {
+            this.isSaving = false;
+            this.visible = false;
+            this.resetFormulario();
+          })
+        )
+        .subscribe();
     }
   }
 

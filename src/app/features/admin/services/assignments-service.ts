@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { map, Observable, switchMap } from 'rxjs';
+import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { CoursesModel } from '../../../core/models/courses.model';
 import { AssignmentsModel } from '../../../core/models/assignments.model';
 import { generateUUID } from '../../../core/helpers/uuid.helpers';
@@ -49,5 +49,44 @@ export class AssignmentsService {
       `${this.apiURL}/assignments`,
       newAssignments
     );
+  }
+
+  syncAssignmentsForTeacher(
+    teacherId: string,
+    newCoursesIds: string[],
+    currentAssignments: AssignmentsModel[]
+  ): Observable<(void | AssignmentsModel)[]> {
+    const currentCoursesIds: string[] = currentAssignments.map(
+      (a: AssignmentsModel) => a.courseId
+    );
+
+    const toDelete: AssignmentsModel[] = currentAssignments.filter(
+      (a: AssignmentsModel) => !newCoursesIds.includes(a.courseId)
+    );
+    const deleteRequest = toDelete.map((a: AssignmentsModel) =>
+      this.http.delete<void>(`${this.apiURL}/assignments/${a.id}`)
+    );
+
+    const toAdd: string[] = newCoursesIds.filter(
+      (id: string) => !currentCoursesIds.includes(id)
+    );
+
+    if (toAdd.length === 0 && toDelete.length === 0) {
+      return of([]); // Devuelve un observable que se completa inmediatamente
+    }
+    const postRequests: Observable<AssignmentsModel>[] = toAdd.map(
+      (courseId: string) => {
+        const newAssignments: AssignmentsModel = {
+          id: generateUUID(),
+          teacherId,
+          courseId,
+        };
+        return this.http.post<AssignmentsModel>(
+          `${this.apiURL}/assignments`,
+          newAssignments
+        );
+      }
+    );
+    return forkJoin([...deleteRequest, ...postRequests]);
   }
 }
