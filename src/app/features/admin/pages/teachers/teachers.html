@@ -1,10 +1,12 @@
 <p-card class="card">
+  <p-toast />
   <p-table #tableTeachers [value]="teachers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
-    [loading]="loading" [paginator]="true" [globalFilterFields]="['name', 'dni', 'phone', 'specialty', 'active']"
-    [tableStyle]="{ 'min-width': '75rem' }">
+    [loading]="loading" [showLoader]="false" [paginator]="paginator"
+    [globalFilterFields]="['name', 'dni', 'phone', 'specialty', 'active']" [tableStyle]="{ 'min-width': '75rem' }"
+    class="overflow-y-hidden">
     <ng-template #caption>
-      <div class="flex gap-2 items-center">
-        <p-button label="Agregar Profesor" icon="pi pi-plus" />
+      <div class="flex gap-2 items-center justify-center">
+        <p-button label="Agregar Profesor" icon="pi pi-plus" (onClick)="openNewTeacher()" />
         <p-iconfield iconPosition="left" class="ml-auto">
           <p-inputicon>
             <i class="pi pi-search"></i>
@@ -14,17 +16,16 @@
             placeholder="Escribe para buscar..." />
         </p-iconfield>
       </div>
-
-
-
     </ng-template>
     <ng-template #header>
       <tr>
-        <th style="width:22%">Nombre</th>
-        <th style="width:22%">DNI</th>
-        <th style="width:22%">Teléfono</th>
-        <th style="width:22%">Especialidad</th>
-        <th style="width:12%;text-align:center">Activo</th>
+        <th style="min-width:12rem">Nombre</th>
+        <th style="min-width:12rem">DNI</th>
+        <th style="min-width:12rem">Teléfono</th>
+        <th style="min-width:12rem">Especialidad</th>
+        <th style="min-width:12rem">Cursos</th>
+        <th style="min-width:8rem;text-align:center">Activo</th>
+        <th style="min-width:12rem;text-align:center">Acciones</th>
       </tr>
       <tr>
         <th>
@@ -44,37 +45,82 @@
             ariaLabel="Filtrar por especialidad" filterOn="input" matchMode="contains"
             [showMenu]="false"></p-columnFilter>
         </th>
+        <th></th>
         <th style="text-align: center;">
           <p-columnFilter type="boolean" field="active" display="menu"></p-columnFilter>
         </th>
+        <th></th>
       </tr>
     </ng-template>
+
+    <!-- Cuando loading = true -->
+    <ng-template #loadingbody>
+      <tr *ngFor="let _ of skeletonArray">
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td>
+          <div class="flex justify-center">
+            <p-skeleton shape="circle" size="2rem"></p-skeleton>
+          </div>
+        </td>
+        <td>
+          <div class="flex justify-center">
+            <p-skeleton shape="circle" size="2rem"></p-skeleton>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Cuando loading = false -->
     <ng-template #body let-teacher>
       <tr>
         <td>
-          {{ teacher.name }}
+          <div class="flex items-center gap-4">
+            <p-avatar [image]="teacher.image || 'new-user.png'" shape="circle"></p-avatar>
+            <div class="flex flex-col">
+              <p class="font-medium">{{teacher.name}}</p>
+              <p class="text-gray-500">{{teacher.email}}</p>
+            </div>
+          </div>
         </td>
+        <td>{{ teacher.dni }}</td>
+        <td>{{ teacher.phone }}</td>
+        <td>{{ teacher.specialty }}</td>
         <td>
-          {{teacher.dni}}
+          @if (loadingCoursesMap[teacher.id]) {
+          <p-skeleton width="100%"></p-skeleton>
+          }@else {
+          <ol>
+            @for (course of teachersCoursesMap[teacher.id]; track course.id) {
+            <li>{{course.name}}</li>
+            }
+          </ol>
+          }
         </td>
-        <td>
-          {{teacher.phone}}
-        </td>
-        <td>
-          {{teacher.specialty}}
-        </td>
-        <td style="text-align: center;">
+        <td style="text-align:center;">
           <i class="pi" [ngClass]="{
-                            'text-green-500 pi-check-circle': teacher.active,
-                            'text-red-500 pi-times-circle': !teacher.active
-                        }"></i>
+                 'text-green-500 pi-check-circle': teacher.active,
+                 'text-red-500 pi-times-circle': !teacher.active
+               }">
+          </i>
+        </td>
+        <td>
+          <div class="flex justify-center">
+            <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true"
+              (onClick)="openEditTeacher(teacher, teachersCoursesMap[teacher.id])" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" />
+          </div>
         </td>
       </tr>
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="5">No se encontró profesores.</td>
+        <td colspan="7">No se encontró profesores.</td>
       </tr>
     </ng-template>
   </p-table>
 </p-card>
+<app-modal-teacher />

@@ -41,7 +41,7 @@ export class LayoutService {
 
     return labels.map((label) => ({
       label: this.capitalize(label),
-      // TODO:Puedes agregar routerLink si deseas que sean clicables
+      // TODO:Puedes agregar routerLink para que sean clickeables
     }));
   }
 

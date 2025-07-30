@@ -1,0 +1,157 @@
+<p-toast />
+<p-dialog [modal]="true" [(visible)]="visible" styleClass="w-96 md:!w-130" (onHide)="closeDialog()">
+  <ng-template #header>
+    @if (!isEditMode) {
+    <div>
+      <p class="font-medium text-lg">Agregar Profesor</p>
+      <p class="text-sm text-gray-500">Ingresa los datos del nuevo profesor</p>
+    </div>
+    }@else {
+    <div>
+      <p class="font-medium text-lg">Editar Profesor</p>
+      <p class="text-sm text-gray-500">Modifica los datos del nuevo profesor</p>
+    </div>
+    }
+
+  </ng-template>
+  <p-fileupload #uploadImage name="image" customUpload="true" accept="image/*" maxFileSize="1000000"
+    (onSelect)="onFileSelect($event)" styleClass="flex flex-col-reverse items-center !border-none"
+    pTooltip="Solo se permiten imágenes menores de un 1MB" tooltipPosition="bottom">
+    <ng-template #header let-chooseCallback="chooseCallback">
+      <div>
+        <p-button icon="pi pi-upload" (onClick)="chooseCallback()" label="Seleccionar archivo"
+          styleClass="mt-[-2rem]" />
+      </div>
+    </ng-template>
+    <ng-template #content let-files let-clearCallback="clearCallback">
+      <div class="flex flex-col justify-center gap-2">
+        <p class="text-center font-medium">Avatar</p>
+
+        @for (file of files; track $index) {
+        <div class="flex flex-col  items-center gap-4">
+          <div>
+            <img [alt]="file.name" [src]="file.objectURL"
+              class="rounded-full w-20 h-20 object-cover border border-gray-300">
+          </div>
+          <span class="font-semibold text-ellipsis max-w-60 whitespace-nowrap overflow-hidden">{{ file.name }}</span>
+          <p-button (onClick)="clearCallback()" icon="pi pi-times" [rounded]="true" [outlined]="true" severity="danger"
+            [disabled]="!files || files.length === 0" />
+        </div>
+        }
+      </div>
+    </ng-template>
+    <ng-template #empty>
+      <div class="flex justify-center">
+        @if (isEditMode) {
+        <div class="w-[70%] flex flex-col items-center">
+          <img [src]="imageUrlTeacher" width="70" height="70" alt="new-user" class="object-cover">
+          <p class="mt-2 mb-0  text-sm font-light">Avatar actual</p>
+        </div>
+        <div class="w-[20%] flex justify-center items-center">
+          <i class=" pi pi-sync "></i>
+        </div>
+        }
+        <div class="flex items-center justify-center flex-col" (click)="uploadImage.choose()">
+          <i class="pi pi-cloud-upload !border-2 !rounded-full !p-4 !text-4xl !text-muted-color"></i>
+          <p class="mt-2 mb-0 text-center text-sm font-light">Toca o arrastra el archivo aquí para subirlo.</p>
+        </div>
+      </div>
+
+    </ng-template>
+  </p-fileupload>
+
+  <form [formGroup]="teacherForm" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="name" class="font-medium">Nombre</label>
+      <input pInputText id="name" formControlName="name" autocomplete="name" placeholder="Ej: Marina Torres"
+        [invalid]="isInvalid('name')" [pKeyFilter]="filterAlpha">
+      @if (isInvalid('name')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(teacherForm.get('name'), 'Nombre')}}
+      </p-message>
+      }
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="email" class="font-medium">Correo Electrónico</label>
+      <input pInputText type="email" id="email" formControlName="email" placeholder="Ej: mariana.torres@gmail.com"
+        autocomplete="email" [invalid]="isInvalid('email')">
+      @if (isInvalid('email')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(teacherForm.get('email'), 'Correo')}}
+      </p-message>
+      }
+    </div>
+    <div class="flex gap-2 w-full">
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="phone" class="font-medium">Teléfono</label>
+        <input pInputText type="tel" id="phone" formControlName="phone" placeholder="Ej: 987654321" autocomplete="off"
+          maxlength="9" pKeyFilter="num" [invalid]="isInvalid('phone')">
+        @if (isInvalid('phone')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(teacherForm.get('phone'), 'Teléfono')}}
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="dni" class="font-medium">DNI</label>
+        <input pInputText type="tel" id="dni" formControlName="dni" placeholder="Ej: 12345678" autocomplete="off"
+          maxlength="8" pKeyFilter="num" [invalid]="isInvalid('dni')">
+        @if (isInvalid('dni')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(teacherForm.get('dni'), 'DNI')}}
+        </p-message>
+        }
+      </div>
+    </div>
+    @if (!isEditMode) {
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="specialty" class="font-medium">Contraseña</label>
+      <input pInputText type="password" id="password" formControlName="password" placeholder="Ej: ********"
+        autocomplete="off" [invalid]="isInvalid('specialty')">
+      @if (isInvalid('password')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(teacherForm.get('password'), 'Contraseña')}}
+      </p-message>
+      }
+    </div>
+    }
+
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="specialty" class="font-medium">Especialidad</label>
+      <input pInputText type="specialty" id="specialty" formControlName="specialty" placeholder="Ej: Programación Java"
+        autocomplete="off" [pKeyFilter]="filterAlphaNum" [invalid]="isInvalid('specialty')">
+      @if (isInvalid('specialty')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(teacherForm.get('specialty'), 'Especialidad')}}
+      </p-message>
+      }
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="courses" class="font-medium">Cursos</label>
+      <p-multiselect id="courses" [options]="courses" formControlName="courses" optionLabel="name"
+        placeholder="Seleccionar cursos" [maxSelectedLabels]="2" [fluid]="true" [loading]="loadingCourses"
+        scrollHeight="100px" />
+      <div class="flex flex-wrap gap-2">
+        @for (course of teacherForm.get('courses')?.value; track course.id) {
+        <p-chip [label]="course.name" [removable]="true" (onRemove)="removeCourse(course)" />
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="state" class="font-medium">Estado</label>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch formControlName="active" />
+        @if (teacherForm.get('active')?.value) {
+        <span>Activo</span>
+        }@else {
+        <span>Inactivo</span>
+        }
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-20">
+      <p-button label="Cancelar" severity="secondary" (click)="closeDialog()" />
+      <button pButton type="submit"> <span pButtonLabel>Guardar</span></button>
+    </div>
+  </form>
+
+</p-dialog>

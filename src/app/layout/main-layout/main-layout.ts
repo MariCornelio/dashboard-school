@@ -20,7 +20,6 @@ export class MainLayout {
     const isExcludedButton = clickedElement.closest('.ignore-click');
 
     if (!isInsideSidebar && !isExcludedButton) {
-      console.log('click layout');
       this.layoutSvc.onClickLayoutForMobile();
     }
   }

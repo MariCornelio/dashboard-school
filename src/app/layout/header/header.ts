@@ -4,7 +4,7 @@ import { Card } from 'primeng/card';
 import { LayoutService } from '../services/layout-service';
 import { MenuItem } from 'primeng/api';
 import { Breadcrumb } from 'primeng/breadcrumb';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, Subject, takeUntil, tap } from 'rxjs';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './header.css',
 })
 export class Header {
+  private destroy$ = new Subject<void>();
   items: MenuItem[] | undefined;
 
   home: MenuItem | undefined;
@@ -22,11 +23,18 @@ export class Header {
   ngOnInit() {
     this.home = { icon: 'pi pi-home', routerLink: '/admin' };
     this.layoutSvc.menuBreadcrumbAction$
-      .pipe(tap((items) => (this.items = items)))
+      .pipe(
+        takeUntil(this.destroy$),
+        tap((items) => (this.items = items))
+      )
       .subscribe();
   }
-  //TODO:desuscripcion
   onMenuToggle() {
     this.layoutSvc.onMenuToggle();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
