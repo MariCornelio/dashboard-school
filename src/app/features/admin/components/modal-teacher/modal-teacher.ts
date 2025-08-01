@@ -36,6 +36,8 @@ import { TeacherModel } from '../../../../core/models/teacher.model';
 import { TeachersService } from '../../services/teachers-service';
 import { AssignmentsService } from '../../services/assignments-service';
 import { AssignmentsModel } from '../../../../core/models/assignments.model';
+import { LoaderDialog } from '../../../../shared/components/loader-dialog/loader-dialog';
+import { TeacherStoreService } from '../../services/teacher-store-service';
 
 type CourseWithAssignment = CoursesModel & { assignmentId?: string };
 type teacherFormModel = TeacherModel & {
@@ -58,17 +60,19 @@ type teacherFormModel = TeacherModel & {
     ChipModule,
     ToggleSwitchModule,
     Tooltip,
+    LoaderDialog,
   ],
   providers: [MessageService],
   templateUrl: './modal-teacher.html',
   styleUrl: './modal-teacher.css',
 })
-export class ModalTeacher implements OnInit {
+export class ModalTeacher {
   visible: boolean = false;
   files!: File[];
   courses: CoursesModel[] = [];
   loadingCourses: boolean = true;
   isSaving: boolean = false;
+  loaderMessage: string = '';
 
   filterAlpha: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
   filterAlphaNum: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s]+$/;
@@ -91,6 +95,7 @@ export class ModalTeacher implements OnInit {
     private coursesSvc: CoursesService,
     private messageService: MessageService,
     private teacherSvc: TeachersService,
+    private teacherStoreSvc: TeacherStoreService,
     private assignmentsSvc: AssignmentsService
   ) {
     this.teacherForm = this.builder.group({
@@ -122,7 +127,7 @@ export class ModalTeacher implements OnInit {
     });
   }
 
-  ngOnInit(): void {
+  onGetCourses(): void {
     this.coursesSvc
       .getCourses()
       .pipe(
@@ -131,7 +136,7 @@ export class ModalTeacher implements OnInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Error al cargar cursos',
+            detail: 'Error al cargar el total de cursos en el formulario',
           });
           console.log('Error al cargar cursos', err);
           return of([]);
@@ -207,6 +212,7 @@ export class ModalTeacher implements OnInit {
     );
 
     if (!this.isEditMode) {
+      this.loaderMessage = 'Guardando Profesor';
       this.teacherSvc
         .saveTeacher(teacherData)
         .pipe(
@@ -234,6 +240,8 @@ export class ModalTeacher implements OnInit {
             );
             return forkJoin(requests).pipe(
               catchError((err) => {
+                //se agrega a la suscripcion porque se crea el profesor pero no sus asignaciones
+                this.teacherStoreSvc.triggerRefreshTeacher();
                 this.messageService.add({
                   severity: 'warn',
                   summary: 'Error al asignar cursos',
@@ -250,7 +258,9 @@ export class ModalTeacher implements OnInit {
               severity: 'success',
               summary: 'Guardado exitosamente',
               detail: 'El profesor se a creado exitosamente',
+              life: 5000,
             });
+            this.teacherStoreSvc.triggerRefreshTeacher();
           }),
           finalize(() => {
             this.isSaving = false;
@@ -260,6 +270,7 @@ export class ModalTeacher implements OnInit {
         )
         .subscribe();
     } else {
+      this.loaderMessage = 'Actualizando Profesor';
       this.teacherSvc
         .updateTeacher(this.teacher.id!, teacherData)
         .pipe(
@@ -281,6 +292,7 @@ export class ModalTeacher implements OnInit {
               )
               .pipe(
                 catchError((err) => {
+                  this.teacherStoreSvc.triggerRefreshTeacher();
                   this.messageService.add({
                     severity: 'warn',
                     summary: 'Error al actualizar la asignación de cursos',
@@ -293,10 +305,12 @@ export class ModalTeacher implements OnInit {
               );
           }),
           tap(() => {
+            this.teacherStoreSvc.triggerRefreshTeacher();
             this.messageService.add({
               severity: 'success',
               summary: 'Profesor actualizado',
               detail: 'Los datos se guardaron correctamente',
+              life: 5000,
             });
           }),
           finalize(() => {
@@ -333,6 +347,8 @@ export class ModalTeacher implements OnInit {
   }
 
   newTeacher() {
+    //carga de cursos:
+    this.onGetCourses();
     this.visible = true;
     this.isEditMode = false;
     this.teacher = {};
@@ -347,6 +363,8 @@ export class ModalTeacher implements OnInit {
     courses: CoursesModel[],
     assignments: AssignmentsModel[]
   ) {
+    //caergar cursos
+    this.onGetCourses();
     this.visible = true;
     this.isEditMode = true;
     this.teacher = { ...teacher };
@@ -363,7 +381,7 @@ export class ModalTeacher implements OnInit {
       active: teacher.active ?? false,
       courses: courses || [],
     });
-    console.log(this.currentAssignments);
+
 
     // this.teacherForm.get('courses')?.setValue(courses);
 

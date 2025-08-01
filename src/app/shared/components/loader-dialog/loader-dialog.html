@@ -1,0 +1,11 @@
+<p-dialog styleClass="m-5" [(visible)]="visible" [style]="{ width: '25rem' }" [modal]="true">
+  <ng-template #headless>
+    <div class="flex flex-col items-center p-8  rounded">
+      <div class="rounded-full   text inline-flex justify-center items-center  w-24 ">
+        <i class="pi pi-spin pi-spinner-dotted !text-5xl text-teal-500"></i>
+      </div>
+      <p class="font-bold text-2xl block mb-2 mt-6">{{message}}</p>
+      <p class="mb-0 text-center">Espere un momento por favor.</p>
+    </div>
+  </ng-template>
+</p-dialog>

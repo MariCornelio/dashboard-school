@@ -89,4 +89,18 @@ export class AssignmentsService {
     );
     return forkJoin([...deleteRequest, ...postRequests]);
   }
+
+  deleteAssignmentsByTeacher(teacherId: string): Observable<void[]> {
+    return this.getAssignmentsByTeacher(teacherId).pipe(
+      switchMap((assigments) => {
+        if (assigments.length === 0) {
+          return of([]);
+        }
+        const deleteRequest = assigments.map((a: AssignmentsModel) =>
+          this.http.delete<void>(`${this.apiURL}/assignments/${a.id}`)
+        );
+        return forkJoin(deleteRequest);
+      })
+    );
+  }
 }

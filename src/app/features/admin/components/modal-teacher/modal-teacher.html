@@ -1,6 +1,7 @@
 <p-toast />
-<p-dialog [modal]="true" [(visible)]="visible" styleClass="w-96 md:!w-130" (onHide)="closeDialog()"
-  [closable]="!isSaving" [contentStyleClass]="isSaving?'opacity-50 cursor-progress pointer-events-none':''">
+<!--modal loader -->
+<app-loader-dialog [visible]="isSaving" [message]="loaderMessage" />
+<p-dialog [modal]="true" [(visible)]="visible" styleClass="w-96 md:!w-130" (onHide)="closeDialog()">
   <ng-template #header>
     @if (!isEditMode) {
     <div>
@@ -130,11 +131,14 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="courses" class="font-medium">Cursos</label>
       <p-multiselect id="courses" [options]="courses" formControlName="courses" optionLabel="name"
-        placeholder="Seleccionar cursos" [maxSelectedLabels]="2" [fluid]="true" [loading]="loadingCourses"
-        scrollHeight="100px" />
+        placeholder="Seleccionar cursos" [maxSelectedLabels]="2" [displaySelectedLabel]="!(courses.length===0)"
+        [fluid]="true" [loading]="loadingCourses" scrollHeight="100px" />
+      @if (courses.length===0) {
+      <p>No existen cursos disponibles en este momento.</p>
+      }
       <div class="flex flex-wrap gap-2">
         @for (course of teacherForm.get('courses')?.value; track course.id) {
-        <p-chip [label]="course.name" [removable]="true" (onRemove)="removeCourse(course)" />
+        <p-chip [label]="course.name" [removable]="(courses.length > 0)" (onRemove)="removeCourse(course)" />
         }
       </div>
     </div>
@@ -151,14 +155,9 @@
     </div>
     <div class="flex justify-end gap-2 mt-20">
       <p-button label="Cancelar" severity="secondary" (click)="closeDialog()" />
-      <button pButton type="submit" [disabled]="isSaving">
-        @if (isSaving) {
-        <i class="pi pi-spin pi-spinner"></i> <span>Guardando...</span>
-        }@else {
+      <button pButton type="submit">
         <span pButtonLabel>Guardar</span>
-        }
       </button>
     </div>
   </form>
-
 </p-dialog>

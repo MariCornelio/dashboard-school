@@ -1,5 +1,6 @@
 <p-card class="card">
   <p-toast />
+  <app-loader-dialog [visible]="loadingDeleteTeacher" [message]="'Eliminando profesor'" />
   <p-table #tableTeachers [value]="teachers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
     [loading]="loading" [showLoader]="false" [paginator]="paginator"
     [globalFilterFields]="['name', 'dni', 'phone', 'specialty', 'active']" [tableStyle]="{ 'min-width': '75rem' }"
@@ -111,10 +112,14 @@
           <div class="flex justify-center">
             <p-button [icon]="loadingAssignmentsTeacher[teacher.id]?'pi pi-spin pi-spinner':'pi pi-pencil'" class="mr-2"
               [rounded]="true" [outlined]="true" (onClick)="openEditTeacher(teacher, teachersCoursesMap[teacher.id])" />
-            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+              (onClick)="confirmDelete.show()" />
           </div>
         </td>
       </tr>
+      <!-- Modal para eliminar usuario -->
+      <app-delete-dialog #confirmDelete [header]="'Eliminar Profesor(a)'"
+        [message]="`Deseas eliminar a ${teacher.name} de forma permanente?`" (onAccept)="openDeleteTeacher(teacher)" />
     </ng-template>
     <ng-template #emptymessage>
       <tr>

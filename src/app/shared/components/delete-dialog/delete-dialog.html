@@ -1,0 +1,15 @@
+<p-confirmdialog styleClass="m-5" [style]="{ width: '25rem' }">
+  <ng-template #headless let-message let-onAccept="onAccept" let-onReject="onReject">
+    <div class="flex flex-col items-center p-8  rounded">
+      <div class="rounded-full  text inline-flex justify-center items-center w-24 ">
+        <i class="pi pi-trash !text-5xl text-[#ef4444]"></i>
+      </div>
+      <span class="font-bold text-2xl block mb-2 mt-6">{{ message.header }}</span>
+      <p class="mb-0 text-center">{{ message.message }}</p>
+      <div class="flex items-center gap-2 mt-6">
+        <p-button severity="danger" label="Eliminar" (onClick)="onAccept()" styleClass="w-32"></p-button>
+        <p-button severity="secondary" label="Cancelar" (onClick)="onReject()" styleClass="w-32"></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-confirmdialog>

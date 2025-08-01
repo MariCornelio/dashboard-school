@@ -25,4 +25,8 @@ export class TeachersService {
   ): Observable<TeacherModel> {
     return this.http.patch<TeacherModel>(`${this.apiURL}/${teacherId}`, data);
   }
+
+  deleteTeacher(teacherId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiURL}/${teacherId}`);
+  }
 }
