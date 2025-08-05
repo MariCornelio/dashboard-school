@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { TeacherModel } from '../../../../core/models/teacher.model';
 import { CoursesModel } from '../../../../core/models/courses.model';
 import { TeachersService } from '../../services/teachers-service';
 import {
   catchError,
+  EMPTY,
   finalize,
   Observable,
   of,
@@ -13,7 +14,7 @@ import {
   tap,
   throwError,
 } from 'rxjs';
-import { TableModule } from 'primeng/table';
+import { TableModule, TablePageEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
@@ -33,6 +34,7 @@ import { ModalTeacher } from '../../components/modal-teacher/modal-teacher';
 import { DeleteDialog } from '../../../../shared/components/delete-dialog/delete-dialog';
 import { LoaderDialog } from '../../../../shared/components/loader-dialog/loader-dialog';
 import { TeacherStoreService } from '../../services/teacher-store-service';
+import { UsersService } from '../../../../core/services/users-service';
 
 @Component({
   selector: 'app-teachers',
@@ -76,6 +78,9 @@ export class Teachers implements OnInit {
   //Se coloca para que no salgan varios toast de error
   errorShow: boolean = false;
 
+  currentPage: number = 0;
+  @ViewChild('tableTeachers') tableTeachers!: TablePageEvent;
+
   //modal
   @ViewChild(ModalTeacher) componentModalTeacher!: ModalTeacher;
   //para desuscripcion
@@ -85,12 +90,18 @@ export class Teachers implements OnInit {
     private teachersSvc: TeachersService,
     private assignmentSvc: AssignmentsService,
     private teacherStoreSvc: TeacherStoreService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private usersSvc: UsersService
   ) {}
   ngOnInit() {
     this.teacherStoreSvc.refreshTeacherAction$
       .pipe(
         takeUntil(this.destroy$),
+        tap((origin) => {
+          if (origin === 'create' || origin === 'delete') {
+            this.currentPage = 0;
+          }
+        }),
         tap(() => this.loadAllTeachers())
       )
       .subscribe();
@@ -115,6 +126,9 @@ export class Teachers implements OnInit {
           this.teachers = teachers;
           if (this.teachers.length) this.paginator = true;
           this.loadAllCourses();
+          setTimeout(() => {
+            this.tableTeachers.first = this.currentPage;
+          });
         }),
         finalize(() => {
           this.loading = false;
@@ -158,6 +172,10 @@ export class Teachers implements OnInit {
     }
   }
 
+  onPage(event: any) {
+    this.currentPage = event.first;
+  }
+
   //modal
   openNewTeacher(): void {
     this.componentModalTeacher.newTeacher();
@@ -187,10 +205,10 @@ export class Teachers implements OnInit {
       .subscribe();
   }
 
-  openDeleteTeacher(teacher: TeacherModel) {
+  deleteTeacher(teacher: TeacherModel) {
     this.loadingDeleteTeacher = true;
-    this.teachersSvc
-      .deleteTeacher(teacher.id!)
+    this.usersSvc
+      .deleteUser(teacher.userId!)
       .pipe(
         catchError((err) => {
           this.messageService.add({
@@ -198,24 +216,36 @@ export class Teachers implements OnInit {
             summary: 'Error',
             detail: 'Ocurrio un error al eliminar profesor',
           });
-          console.error('Error al eliminar el profesor', err);
-          return throwError(() => err);
+          console.error('Error al eliminar el usuario profesor', err);
+          return EMPTY;
         }),
+
+        //Esto no se usa porque json-server usa eliminacion en cascada de un nivel
+
+        // switchMap(() => {
+        //   return this.teachersSvc.deleteTeacher(teacher.id!);
+        // }),
+        // catchError((err) => {
+        //   this.messageService.add({
+        //     severity: 'error',
+        //     summary: 'Error',
+        //     detail: 'Ocurrio un error al eliminar profesor',
+        //   });
+        //   console.error('Error al eliminar el profesor', err);
+        //   return EMPTY;
+        // }),
         switchMap(() => {
-          return this.assignmentSvc
-            .deleteAssignmentsByTeacher(teacher.id!)
-            .pipe(
-              catchError((err) => {
-                console.error(
-                  'Error al eliminar asignaciones del profesor, puede que queden asignaciones huerfanas',
-                  err
-                );
-                return of([]);
-              })
-            );
+          return this.assignmentSvc.deleteAssignmentsByTeacher(teacher.id!);
+        }),
+        catchError((err) => {
+          console.error(
+            'Error al eliminar asignaciones del profesor, puede que queden asignaciones huerfanas',
+            err
+          );
+          return of([]);
         }),
         tap(() => {
-          this.teacherStoreSvc.triggerRefreshTeacher();
+          this.teacherStoreSvc.triggerRefreshTeacher('delete');
           this.messageService.add({
             severity: 'success',
             summary: 'Profesor Eliminado',

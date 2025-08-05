@@ -2,7 +2,7 @@
   <p-toast />
   <app-loader-dialog [visible]="loadingDeleteTeacher" [message]="'Eliminando profesor'" />
   <p-table #tableTeachers [value]="teachers" dataKey="id" [rows]="10" [rowsPerPageOptions]="[10, 25, 50]"
-    [loading]="loading" [showLoader]="false" [paginator]="paginator"
+    (onPage)="onPage($event)" [loading]="loading" [showLoader]="false" [paginator]="paginator"
     [globalFilterFields]="['name', 'dni', 'phone', 'specialty', 'active']" [tableStyle]="{ 'min-width': '75rem' }"
     class="overflow-y-hidden">
     <ng-template #caption>
@@ -20,7 +20,7 @@
     </ng-template>
     <ng-template #header>
       <tr>
-        <th style="min-width:12rem">Nombre</th>
+        <th style="min-width:18rem">Nombre</th>
         <th style="min-width:12rem">DNI</th>
         <th style="min-width:12rem">Teléfono</th>
         <th style="min-width:12rem">Especialidad</th>
@@ -119,7 +119,7 @@
       </tr>
       <!-- Modal para eliminar usuario -->
       <app-delete-dialog #confirmDelete [header]="'Eliminar Profesor(a)'"
-        [message]="`Deseas eliminar a ${teacher.name} de forma permanente?`" (onAccept)="openDeleteTeacher(teacher)" />
+        [message]="`Deseas eliminar a ${teacher.name} de forma permanente?`" (onAccept)="deleteTeacher(teacher)" />
     </ng-template>
     <ng-template #emptymessage>
       <tr>

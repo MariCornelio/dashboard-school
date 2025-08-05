@@ -4,12 +4,14 @@ import { forkJoin, map, Observable, of, switchMap } from 'rxjs';
 import { CoursesModel } from '../../../core/models/courses.model';
 import { AssignmentsModel } from '../../../core/models/assignments.model';
 import { generateUUID } from '../../../core/helpers/uuid.helpers';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AssignmentsService {
-  private apiURL = 'http://localhost:8080';
+  private apiURL = `${environment.apiJsonServerURL}`;
+  //private apiURL = 'http://localhost:8080';
 
   constructor(private http: HttpClient) {}
 

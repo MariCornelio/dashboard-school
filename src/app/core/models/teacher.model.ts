@@ -7,4 +7,6 @@ export interface TeacherModel {
   specialty?: string;
   image?: string;
   active?: boolean;
+  createdAt?: string;
+  userId?: string;
 }

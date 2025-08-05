@@ -19,6 +19,7 @@ import { CoursesModel } from '../../../../core/models/courses.model';
 import { CoursesService } from '../../services/courses-service';
 import {
   catchError,
+  EMPTY,
   finalize,
   forkJoin,
   of,
@@ -38,6 +39,8 @@ import { AssignmentsService } from '../../services/assignments-service';
 import { AssignmentsModel } from '../../../../core/models/assignments.model';
 import { LoaderDialog } from '../../../../shared/components/loader-dialog/loader-dialog';
 import { TeacherStoreService } from '../../services/teacher-store-service';
+import { UserModel, UserRole } from '../../../../core/models/users.model';
+import { UsersService } from '../../../../core/services/users-service';
 
 type CourseWithAssignment = CoursesModel & { assignmentId?: string };
 type teacherFormModel = TeacherModel & {
@@ -96,7 +99,8 @@ export class ModalTeacher {
     private messageService: MessageService,
     private teacherSvc: TeachersService,
     private teacherStoreSvc: TeacherStoreService,
-    private assignmentsSvc: AssignmentsService
+    private assignmentsSvc: AssignmentsService,
+    private usersSvc: UsersService
   ) {
     this.teacherForm = this.builder.group({
       name: [
@@ -206,6 +210,14 @@ export class ModalTeacher {
       active: formValues.active,
     };
 
+    const userData: UserModel = {
+      name: formValues.name,
+      email: formValues.email,
+      password: formValues.password,
+    };
+    //para modo edicion
+    const { password, ...userDataWithoutPassword } = userData;
+
     const selectedCourses: CoursesModel[] = formValues.courses;
     const selectedCoursesIds: string[] = selectedCourses.map(
       (course: CoursesModel) => course.id!
@@ -213,8 +225,8 @@ export class ModalTeacher {
 
     if (!this.isEditMode) {
       this.loaderMessage = 'Guardando Profesor';
-      this.teacherSvc
-        .saveTeacher(teacherData)
+      this.usersSvc
+        .createUser(userData, UserRole.TEACHER)
         .pipe(
           catchError((err) => {
             this.messageService.add({
@@ -222,8 +234,24 @@ export class ModalTeacher {
               summary: 'Error al guardar profesor',
               detail: 'No se pudo guardar el profesor. Inténtalo nuevamente.',
             });
+            console.error('fallo al guardar el usuario profesor', err);
+            return EMPTY;
+          }),
+          switchMap((user) => {
+            const teacherDataWithUser = {
+              ...teacherData,
+              userId: user.id,
+            };
+            return this.teacherSvc.saveTeacher(teacherDataWithUser);
+          }),
+          catchError((err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al guardar profesor',
+              detail: 'No se pudo guardar el profesor. Inténtalo nuevamente.',
+            });
             console.error('fallo al guardar profesor', err);
-            return throwError(() => err);
+            return EMPTY;
           }),
           switchMap((teacher) => {
             const assignments: AssignmentsModel[] = selectedCourses.map(
@@ -238,20 +266,19 @@ export class ModalTeacher {
             const requests = assignments.map((a) =>
               this.assignmentsSvc.saveAssignments(a)
             );
-            return forkJoin(requests).pipe(
-              catchError((err) => {
-                //se agrega a la suscripcion porque se crea el profesor pero no sus asignaciones
-                this.teacherStoreSvc.triggerRefreshTeacher();
-                this.messageService.add({
-                  severity: 'warn',
-                  summary: 'Error al asignar cursos',
-                  detail:
-                    'El profesor fue guardado, pero falló la asignación de cursos.',
-                });
-                console.error('fallo la asignacion de cursos', err);
-                return throwError(() => err);
-              })
-            );
+            return forkJoin(requests);
+          }),
+          catchError((err) => {
+            //se agrega a la suscripcion porque se crea el profesor pero no sus asignaciones
+            this.teacherStoreSvc.triggerRefreshTeacher('create');
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Error al asignar cursos',
+              detail:
+                'El profesor fue guardado, pero falló la asignación de cursos.',
+            });
+            console.error('fallo la asignacion de cursos', err);
+            return EMPTY;
           }),
           tap(() => {
             this.messageService.add({
@@ -260,7 +287,7 @@ export class ModalTeacher {
               detail: 'El profesor se a creado exitosamente',
               life: 5000,
             });
-            this.teacherStoreSvc.triggerRefreshTeacher();
+            this.teacherStoreSvc.triggerRefreshTeacher('create');
           }),
           finalize(() => {
             this.isSaving = false;
@@ -271,41 +298,51 @@ export class ModalTeacher {
         .subscribe();
     } else {
       this.loaderMessage = 'Actualizando Profesor';
-      this.teacherSvc
-        .updateTeacher(this.teacher.id!, teacherData)
+      this.usersSvc
+        .updateUser(this.teacher.userId!, userDataWithoutPassword)
         .pipe(
+          catchError((err) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error al actualizar profesor',
+              detail:
+                'No se pudo actualizar el profesor. Inténtalo nuevamente.',
+            });
+            console.error('fallo al actualizar el usuario profesor', err);
+            return EMPTY;
+          }),
+          switchMap(() => {
+            return this.teacherSvc.updateTeacher(this.teacher.id!, teacherData);
+          }),
           catchError((err) => {
             this.messageService.add({
               severity: 'error',
               summary: 'Error al editar profesor',
               detail: 'No se pudo guardar el profesor. Inténtalo nuevamente.',
             });
-            console.error('Fallo al actualizar profesor');
-            return throwError(() => err);
+            console.error('Fallo al actualizar profesor', err);
+            return EMPTY;
           }),
           switchMap(() => {
-            return this.assignmentsSvc
-              .syncAssignmentsForTeacher(
-                this.teacher.id!,
-                selectedCoursesIds,
-                this.currentAssignments
-              )
-              .pipe(
-                catchError((err) => {
-                  this.teacherStoreSvc.triggerRefreshTeacher();
-                  this.messageService.add({
-                    severity: 'warn',
-                    summary: 'Error al actualizar la asignación de cursos',
-                    detail:
-                      'El profesor fue actualizado, pero falló la asignación de cursos.',
-                  });
-                  console.error('Fallo la actualizacion de asignaciones', err);
-                  return throwError(() => err);
-                })
-              );
+            return this.assignmentsSvc.syncAssignmentsForTeacher(
+              this.teacher.id!,
+              selectedCoursesIds,
+              this.currentAssignments
+            );
+          }),
+          catchError((err) => {
+            this.teacherStoreSvc.triggerRefreshTeacher('edit');
+            this.messageService.add({
+              severity: 'warn',
+              summary: 'Advertencia al actualizar profesor',
+              detail:
+                'El profesor fue actualizado, pero falló la asignación de cursos.',
+            });
+            console.error('Fallo la actualizacion de asignaciones', err);
+            return EMPTY;
           }),
           tap(() => {
-            this.teacherStoreSvc.triggerRefreshTeacher();
+            this.teacherStoreSvc.triggerRefreshTeacher('edit');
             this.messageService.add({
               severity: 'success',
               summary: 'Profesor actualizado',
@@ -381,7 +418,6 @@ export class ModalTeacher {
       active: teacher.active ?? false,
       courses: courses || [],
     });
-
 
     // this.teacherForm.get('courses')?.setValue(courses);
 

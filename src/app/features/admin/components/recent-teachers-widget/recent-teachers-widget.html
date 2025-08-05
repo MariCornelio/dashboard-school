@@ -1,0 +1,50 @@
+<div class="card">
+  <p-table #tableTeachers [value]="teachersStoreSvc.teachersWidget()" dataKey="id" [rows]="5" [paginator]="false"
+    [loading]="teachersStoreSvc.loadingTeachers()" [showLoader]="false" [tableStyle]="{ 'min-width': '30rem' }"
+    class="overflow-y-hidden">
+    <ng-template #caption>
+      <div class="flex gap-2 items-center justify-between">
+        <p class="font-bold">Profesores agregados recientemente</p>
+        <i class="pi pi-eye !text-xl cursor-pointer p-2" [routerLink]="['/admin/profesores']"></i>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="min-width:8rem">Nombre</th>
+        <th style="min-width:8rem">Teléfono</th>
+        <th style="min-width:8rem">Especialidad</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuando loading = true -->
+    <ng-template #loadingbody>
+      <tr *ngFor="let _ of skeletonArray">
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+      </tr>
+    </ng-template>
+
+    <!-- Cuando loading = false -->
+    <ng-template #body let-teacher>
+      <tr>
+        <td>
+          <div class="flex items-center gap-4">
+            <p-avatar [image]="teacher.image || 'new-user.png'" shape="circle"></p-avatar>
+            <div class="flex flex-col">
+              <p class="font-medium">{{teacher.name}}</p>
+              <p class="text-gray-500">{{teacher.email}}</p>
+            </div>
+          </div>
+        </td>
+        <td>{{ teacher.phone }}</td>
+        <td>{{ teacher.specialty }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7">No se encontró profesores.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
