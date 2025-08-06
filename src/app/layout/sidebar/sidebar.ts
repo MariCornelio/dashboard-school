@@ -32,8 +32,8 @@ export class Sidebar implements OnInit {
         icon: 'pi pi-briefcase',
         routerLink: '/admin/profesores',
       },
-      { label: 'Cursos', icon: 'pi pi-book' },
-      { label: 'Alumnos', icon: 'pi pi-user' },
+      { label: 'Cursos', icon: 'pi pi-book', routerLink: '/admin/cursos' },
+      { label: 'Alumnos', icon: 'pi pi-user', routerLink: '/admin/alumnos' },
     ];
 
     this.layoutSvc.sidebarVisibleAction$
@@ -61,6 +61,10 @@ export class Sidebar implements OnInit {
       ? 'lg:h-[calc(100vh-2rem)] lg:sticky lg:top-4 lg:-translate-x-0'
       : 'lg:h-[calc(100vh-2rem)] lg:absolute lg:-translate-x-[110%]';
     return `${base} ${overlay} ${sidebar}`;
+  }
+
+  onClick() {
+    this.layoutSvc.onClickLayoutForMobile();
   }
 
   ngOnDestroy(): void {

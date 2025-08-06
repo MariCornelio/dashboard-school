@@ -7,7 +7,7 @@
       </div>
     </ng-template>
     <ng-template #item let-item>
-      <a pRipple class="flex items-center p-menu-item-link" [routerLink]="[item.routerLink]">
+      <a pRipple class="flex items-center p-menu-item-link" [routerLink]="[item.routerLink]" (click)="onClick()">
         <span [class]="item.icon" routerLinkActive="text-teal-500" [routerLinkActiveOptions]="{ exact: true }"></span>
         <span class="ml-2" routerLinkActive="text-teal-500 font-bold" [routerLinkActiveOptions]="{ exact: true }">{{
           item.label }}</span>

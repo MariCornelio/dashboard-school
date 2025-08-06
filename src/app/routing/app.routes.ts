@@ -4,6 +4,8 @@ import { DashboardAdmin } from '../features/admin/pages/dashboard-admin/dashboar
 import { Teachers } from '../features/admin/pages/teachers/teachers';
 import { Login } from '../features/auth/pages/login/login';
 import { DashboardTeacher } from '../features/teacher/pages/dashboard-teacher/dashboard-teacher';
+import { Courses } from '../features/admin/pages/courses/courses';
+import { Students } from '../features/admin/pages/students/students';
 
 export const routes: Routes = [
   {
@@ -26,6 +28,14 @@ export const routes: Routes = [
           {
             path: 'profesores',
             component: Teachers,
+          },
+          {
+            path: 'cursos',
+            component: Courses,
+          },
+          {
+            path: 'alumnos',
+            component: Students,
           },
         ],
       },
