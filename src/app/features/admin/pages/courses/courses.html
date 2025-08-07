@@ -1,1 +1,127 @@
-<p>courses works!</p>
+<div class="card">
+  <p-toast />
+  <app-loader-dialog [visible]="loadingDeleteCouse" [message]="'Eliminando curso'" />
+  <p-table #tableCourses [value]="coursesStoreSvc.courses()" dataKey="id" [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]" [loading]="coursesStoreSvc.loadingCourses()" [showLoader]="false"
+    [paginator]="coursesStoreSvc.courses().length !== 0"
+    [globalFilterFields]="['name', 'description', 'startDate', 'endDate', 'active']"
+    [tableStyle]="{ 'min-width': '75rem' }" class="overflow-y-hidden">
+    <ng-template #caption>
+      <div class="flex gap-2 items-center justify-center">
+        <p-button label="Agregar Curso" icon="pi pi-plus" (onClick)="openNewCourse()" />
+        <p-iconfield iconPosition="left" class="ml-auto">
+          <p-inputicon>
+            <i class="pi pi-search"></i>
+          </p-inputicon>
+          <input pInputText type="text" #InputFilterGlobal
+            (input)="tableCourses.filterGlobal(InputFilterGlobal.value, 'contains')"
+            placeholder="Escribe para buscar..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="min-width:12rem">Nombre</th>
+        <th style="min-width:12rem">Descripción</th>
+        <th style="min-width:12rem">Inicio</th>
+        <th style="min-width:12rem">Fin</th>
+        <th style="min-width:8rem">Horas</th>
+        <th style="min-width:8rem">Precio (S/)</th>
+        <th style="min-width:12rem">Profesor(es)</th>
+        <th style="min-width:8rem;text-align:center">Activo</th>
+        <th style="min-width:12rem;text-align:center">Acciones</th>
+      </tr>
+      <tr>
+        <th>
+          <p-columnFilter type="text" field="name" placeholder="Buscar por nombre" ariaLabel="Filtrar por nombre"
+            filterOn="input" matchMode="contains" [showMenu]="false"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="description" placeholder="Buscar por descripción"
+            ariaLabel="Filtrar por Descripción" filterOn="input" matchMode="contains"
+            [showMenu]="false"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="date" field="startDate" placeholder="Buscar por fecha"
+            ariaLabel="Filtrar por fecha de inicio" filterOn="input" matchMode="contains"
+            [showMenu]="false"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="date" field="endDate" placeholder="Buscar por fecha"
+            ariaLabel="Filtrar por fecha de término" filterOn="input" matchMode="contains"
+            [showMenu]="false"></p-columnFilter>
+        </th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th style="text-align: center;">
+          <p-columnFilter type="boolean" field="active" display="menu"></p-columnFilter>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuando loading = true -->
+    <ng-template #loadingbody>
+      @for (_ of skeletonArray; track $index) {
+      <tr>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td>
+          <div class="flex justify-center">
+            <p-skeleton shape="circle" size="2rem"></p-skeleton>
+          </div>
+        </td>
+        <td>
+          <div class="flex justify-center">
+            <p-skeleton shape="circle" size="2rem"></p-skeleton>
+          </div>
+        </td>
+      </tr>
+      }
+    </ng-template>
+
+    <!-- Cuando loading = false -->
+    <ng-template #body let-course>
+      <tr>
+        <td>
+          {{course.name}}
+        </td>
+        <td>{{ course.description }}</td>
+        <td>{{ course.startDate }}</td>
+        <td>{{ course.endDate }}</td>
+        <td>{{course.durationHours}}</td>
+        <td>{{course.price | currency :'PEN':'S/. ':'1.2-2' }}</td>
+        <td>profesores</td>
+        <td style="text-align:center;">
+          <i class="pi" [ngClass]="{
+                 'text-green-500 pi-check-circle': course.active,
+                 'text-red-500 pi-times-circle': !course.active
+               }">
+          </i>
+        </td>
+        <td>
+          <div class="flex justify-center">
+            <p-button [icon]="'pi pi-pencil'" class="mr-2" [rounded]="true" [outlined]="true"
+              (onClick)="openEditCourse()" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [outlined]="true"
+              (onClick)="confirmDelete.show()" />
+          </div>
+        </td>
+      </tr>
+      <!-- Modal para eliminar usuario -->
+      <app-delete-dialog #confirmDelete [header]="'Eliminar Curso'"
+        [message]="`Deseas eliminar a ${course.name} de forma permanente?`" (onAccept)="deleteCourse(course)" />
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="7">No se encontró cursos disponibles.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

@@ -36,6 +36,7 @@ export class TeacherStoreService {
   }
 
   loadAllTeachers() {
+    this._teachers.set([]);
     this._loadingTeachers.set(true);
     this._errorTeachers.set(null);
     this.teachersSvc

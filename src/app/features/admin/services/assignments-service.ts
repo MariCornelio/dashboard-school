@@ -20,6 +20,11 @@ export class AssignmentsService {
       `${this.apiURL}/assignments?teacherId=${teacherId}`
     );
   }
+  getAssignmentsByCourse(courseId: string): Observable<AssignmentsModel[]> {
+    return this.http.get<AssignmentsModel[]>(
+      `${this.apiURL}/assignments?courseId=${courseId}`
+    );
+  }
 
   getCoursesByTeacher(teacherId: string): Observable<CoursesModel[]> {
     return this.http
