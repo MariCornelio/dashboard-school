@@ -82,11 +82,21 @@ export class AssignmentsStoreService {
               (a: AssignmentsModel) => a.teacherId
             );
 
-            const filteredCourses: TeacherModel[] = this.teachersStoreSvc
-              .teachers()
-              .filter((teacher: TeacherModel) =>
-                teachersId.includes(teacher.id!)
-              );
+            console.log(
+              `todos los Idsteachers de este curso ${courseId}`,
+              teachersId
+            );
+            const teachers = this.teachersStoreSvc.teachers();
+
+            const filteredCourses: TeacherModel[] = teachers.filter(
+              (teacher: TeacherModel) => teachersId.includes(teacher.id!)
+            );
+
+            console.log(
+              `arreglo de profesores para este curso ${courseId}`,
+              filteredCourses
+            );
+
             this._coursesTeachersMap.update((prev) => ({
               ...prev,
               [courseId]: filteredCourses,
