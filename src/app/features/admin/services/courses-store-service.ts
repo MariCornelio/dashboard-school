@@ -17,6 +17,7 @@ export class CoursesStoreService {
   readonly courses = computed(() => this._courses());
   readonly loadingCourses = computed(() => this._loadingCourses());
   readonly errorCourses = computed(() => this._errorCourses());
+  readonly cursosWidget = computed(() => this._courses().slice(0, 5));
 
   readonly currentPageCourse = computed(() => this._currentPageCourse());
 
