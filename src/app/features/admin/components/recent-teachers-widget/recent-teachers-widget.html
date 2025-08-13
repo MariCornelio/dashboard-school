@@ -18,11 +18,13 @@
 
     <!-- Cuando loading = true -->
     <ng-template #loadingbody>
-      <tr *ngFor="let _ of skeletonArray">
+      @for (_ of skeletonArray; track $index) {
+      <tr>
         <td><p-skeleton width="100%"></p-skeleton></td>
         <td><p-skeleton width="100%"></p-skeleton></td>
         <td><p-skeleton width="100%"></p-skeleton></td>
       </tr>
+      }
     </ng-template>
 
     <!-- Cuando loading = false -->

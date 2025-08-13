@@ -19,8 +19,12 @@ a {
   text-decoration: none;
 }
 
+textarea {
+  resize: none;
+}
+
 .card {
-  padding: 1rem;
+  padding: 1.5rem;
   background-color: white;
   border: 1px solid #e5e7eb;
   border-radius: 6px;

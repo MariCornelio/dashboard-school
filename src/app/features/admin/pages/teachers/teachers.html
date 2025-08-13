@@ -6,20 +6,22 @@
     [globalFilterFields]="['name', 'dni', 'phone', 'specialty', 'active']" [tableStyle]="{ 'min-width': '75rem' }"
     class="overflow-y-hidden">
     <ng-template #caption>
-      <div class="flex gap-2 items-center justify-center">
-        <p-button label="Agregar Profesor" icon="pi pi-plus" (onClick)="openNewTeacher()" />
-        <p-iconfield iconPosition="left" class="ml-auto">
+      <div class="flex gap-2 items-center justify-center max-sm:flex-col">
+        <p-button label="Agregar Profesor" icon="pi pi-plus" (onClick)="openNewTeacher()" class="max-sm:w-full"
+          styleClass="max-sm:w-full" />
+        <p-iconfield iconPosition="left" class="ml-auto max-sm:w-full">
           <p-inputicon>
             <i class="pi pi-search"></i>
           </p-inputicon>
           <input pInputText type="text" #InputFilterGlobal
             (input)="tableTeachers.filterGlobal(InputFilterGlobal.value, 'contains')"
-            placeholder="Escribe para buscar..." />
+            placeholder="Escribe para buscar..." class="max-sm:w-full" />
         </p-iconfield>
       </div>
     </ng-template>
     <ng-template #header>
       <tr>
+        <th></th>
         <th style="min-width:18rem">Nombre</th>
         <th style="min-width:12rem">DNI</th>
         <th style="min-width:12rem">Teléfono</th>
@@ -29,6 +31,7 @@
         <th style="min-width:12rem;text-align:center">Acciones</th>
       </tr>
       <tr>
+        <th></th>
         <th>
           <p-columnFilter type="text" field="name" placeholder="Buscar por nombre" ariaLabel="Filtrar por nombre"
             filterOn="input" matchMode="contains" [showMenu]="false"></p-columnFilter>
@@ -56,7 +59,9 @@
 
     <!-- Cuando loading = true -->
     <ng-template #loadingbody>
-      <tr *ngFor="let _ of skeletonArray">
+      @for (_ of skeletonArray; track $index) {
+      <tr>
+        <td><p-skeleton width="100%"></p-skeleton></td>
         <td><p-skeleton width="100%"></p-skeleton></td>
         <td><p-skeleton width="100%"></p-skeleton></td>
         <td><p-skeleton width="100%"></p-skeleton></td>
@@ -73,11 +78,14 @@
           </div>
         </td>
       </tr>
+      }
+
     </ng-template>
 
     <!-- Cuando loading = false -->
-    <ng-template #body let-teacher>
+    <ng-template #body let-teacher let-rowIndex="rowIndex">
       <tr>
+        <td>{{rowIndex +1}}</td>
         <td>
           <div class="flex items-center gap-4">
             <p-avatar [image]="teacher.image || 'new-user.png'" shape="circle"></p-avatar>

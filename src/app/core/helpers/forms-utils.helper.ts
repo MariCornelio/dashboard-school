@@ -19,6 +19,14 @@ export function getErrorMessage(
     return `${fieldLabel} debe tener al menos ${min} caracteres `;
   }
   if (errors['pattern']) return `${fieldLabel} tiene un formato no válido`;
+  if (errors['max']) {
+    const max: number = errors['max'].max;
+    return `${fieldLabel} excede el máximo permitido (${max})`;
+  }
+  if (errors['min']) {
+    const min: number = errors['min'].min;
+    return `${fieldLabel} debe ser mayor que ${min}`;
+  }
 
   return null;
 }

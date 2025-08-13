@@ -1,0 +1,128 @@
+<p-toast />
+<!--modal loader -->
+<app-loader-dialog [visible]="isSaving" [message]="loaderMessage" />
+<p-dialog [modal]="true" [(visible)]="visible" styleClass="w-96 md:!w-130" (onHide)="closeDialog()">
+  <ng-template #header>
+    @if (!isEditMode) {
+    <div>
+      <p class="font-medium text-lg">Agregar Curso</p>
+      <p class="text-sm text-gray-500">Ingresa los datos del nuevo curso</p>
+    </div>
+    }@else {
+    <div>
+      <p class="font-medium text-lg">Editar Curso</p>
+      <p class="text-sm text-gray-500">Modifica los datos del nuevo curso</p>
+    </div>
+    }
+
+  </ng-template>
+
+  <form [formGroup]="courseForm" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="name" class="font-medium">Nombre</label>
+      <input pInputText id="name" formControlName="name" autocomplete="off" placeholder="Ej: Angular"
+        [invalid]="isInvalid('name')">
+      @if (isInvalid('name')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(courseForm.get('name'), 'Nombre')}}
+      </p-message>
+      }
+    </div>
+    <div class="mb-1">
+      <p class="font-medium">Duración de curso</p>
+    </div>
+
+    <div class="flex gap-2 w-full">
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="startDate" class="font-medium text-sm">Inicio</label>
+        <p-datepicker [iconDisplay]="'input'" [showIcon]="true" inputId="startDate" placeholder="Ej: 15/07/2025"
+          formControlName="startDate" appendTo="body" [invalid]="isInvalid('startDate')" [readonlyInput]="true"
+          [showButtonBar]="true" (onSelect)="onSelectStartDate($event) " (onClearClick)="onClearStartDate()" />
+        @if (isInvalid('startDate')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(courseForm.get('startDate'), 'Fecha Inicio')}}
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="endDate" class="font-medium text-sm">Fin</label>
+        <p-datepicker [iconDisplay]="'input'" [showIcon]="true" inputId="endDate" placeholder="Ej: 20/07/2025"
+          formControlName="endDate" appendTo="body" [minDate]="minDate" [invalid]="isInvalid('endDate')"
+          [readonlyInput]="true" [showButtonBar]="true" />
+        @if (isInvalid('endDate')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(courseForm.get('endDate'), 'Fecha Fin')}}
+        </p-message>
+        }
+      </div>
+    </div>
+
+    <div class="flex gap-2 w-full">
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="durationHours" class="font-medium">Horas</label>
+        <p-input-number inputId="durationHours" placeholder="Ej: 40" formControlName="durationHours" [min]="0"
+          [maxlength]="3" [max]="999" [invalid]="isInvalid('durationHours')" class="*:w-full" />
+        @if (isInvalid('durationHours')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(courseForm.get('durationHours'), 'Horas')}}
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="price" class="font-medium">Precio</label>
+        <p-input-number inputId="price" placeholder="Ej: 60.00" formControlName="price" mode="decimal" [min]="0"
+          [max]="99999" [maxlength]="8" minFractionDigits="2" maxFractionDigits="2" [invalid]="isInvalid('price')"
+          class="*:w-full" />
+        @if (isInvalid('price')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(courseForm.get('price'), 'Precio')}}
+        </p-message>
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="courses" class="font-medium">Profesores</label>
+      <p-multiselect id="courses" [options]="teachersStoreSvc.teachers()" formControlName="teachers" optionLabel="name"
+        placeholder="Seleccionar profesores" [maxSelectedLabels]="2"
+        [displaySelectedLabel]="!(teachersStoreSvc.teachers().length===0)" [fluid]="true"
+        [loading]="teachersStoreSvc.loadingTeachers()" scrollHeight="100px" />
+      @if (teachersStoreSvc.teachers().length===0) {
+      <p>No existen profesores disponibles en este momento.</p>
+      }
+      <div class="flex flex-wrap gap-2">
+        @for (teacher of courseForm.get('teachers')?.value; track teacher.id) {
+        <p-chip [label]="teacher.name" [removable]="(teachersStoreSvc.teachers().length > 0)"
+          (onRemove)="removeTeacher(teacher)" />
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="description" class="font-medium">Descripción</label>
+      <textarea pTextarea rows="2" cols="5" id="description" formControlName="description"
+        placeholder="Ej: Framework de desarrollo web para crear aplicaciones dinámicas, rápidas y escalables."
+        autocomplete="off" [invalid]="isInvalid('description')"></textarea>
+      @if (isInvalid('description')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(courseForm.get('description'), 'Descripción')}}
+      </p-message>
+      }
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="state" class="font-medium">Estado</label>
+      <div class="flex items-center gap-2">
+        <p-toggleswitch formControlName="active" />
+        @if (courseForm.get('active')?.value) {
+        <span>Activo</span>
+        }@else {
+        <span>Inactivo</span>
+        }
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 mt-20">
+      <p-button label="Cancelar" severity="secondary" (click)="closeDialog()" />
+      <button pButton type="submit">
+        <span pButtonLabel>Guardar</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>
