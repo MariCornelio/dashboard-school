@@ -1,11 +1,11 @@
 export interface CoursesModel {
   id?: string;
-  name: string;
-  description: string;
-  startDate: Date;
-  endDate: Date;
-  durationHours: number;
-  mode: string;
-  price: number;
-  active: boolean;
+  name?: string;
+  description?: string;
+  startDate?: string | Date;
+  endDate?: string | Date;
+  durationHours?: number;
+  price?: number;
+  active?: boolean;
+  createdAt?: string;
 }

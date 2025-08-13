@@ -97,6 +97,10 @@ export class AssignmentsService {
     return forkJoin([...deleteRequest, ...postRequests]);
   }
 
+  deleteAssignment(assignmentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiURL}/assignments/${assignmentId}`);
+  }
+
   deleteAssignmentsByTeacher(teacherId: string): Observable<void[]> {
     return this.getAssignmentsByTeacher(teacherId).pipe(
       switchMap((assigments) => {
