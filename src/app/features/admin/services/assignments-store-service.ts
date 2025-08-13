@@ -87,6 +87,10 @@ export class AssignmentsStoreService {
               teachersId
             );
             const teachers = this.teachersStoreSvc.teachers();
+            console.log(
+              'total de teachers en este momento en el store',
+              teachers
+            );
 
             const filteredCourses: TeacherModel[] = teachers.filter(
               (teacher: TeacherModel) => teachersId.includes(teacher.id!)
