@@ -31,6 +31,6 @@ export class DashboardAdmin {
   }
 
   ngOnInit() {
-    this.teachersStoreSvc.loadAllTeachers();
+    this.teachersStoreSvc.loadAllTeachers().subscribe();
   }
 }

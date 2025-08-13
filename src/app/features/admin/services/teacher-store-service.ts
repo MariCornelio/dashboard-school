@@ -35,25 +35,22 @@ export class TeacherStoreService {
     this.refreshTeacherSubject.next(origin);
   }
 
-  loadAllTeachers() {
+  loadAllTeachers(): Observable<TeacherModel[]> {
     this._teachers.set([]);
     this._loadingTeachers.set(true);
     this._errorTeachers.set(null);
-    this.teachersSvc
-      .getTeachers()
-      .pipe(
-        catchError((err) => {
-          this._errorTeachers.set('Error al cargar profesores');
-          console.error('Error al cargar profesores', err);
-          return of([]);
-        }),
-        tap((teachers: TeacherModel[]) => {
-          this._teachers.set(teachers);
-        }),
-        finalize(() => {
-          this._loadingTeachers.set(false);
-        })
-      )
-      .subscribe();
+    return this.teachersSvc.getTeachers().pipe(
+      catchError((err) => {
+        this._errorTeachers.set('Error al cargar profesores');
+        console.error('Error al cargar profesores', err);
+        return of([]);
+      }),
+      tap((teachers: TeacherModel[]) => {
+        this._teachers.set(teachers);
+      }),
+      finalize(() => {
+        this._loadingTeachers.set(false);
+      })
+    );
   }
 }
