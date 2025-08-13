@@ -51,53 +51,56 @@ export class AssignmentsStoreService {
     return forkJoin(requests);
   }
 
-  loadAssignmentsAndTeachersForCourse(courseId: string): void {
-    if (this._loadingCoursesMap()[courseId]) return;
+  loadAssignmentsAndTeachersForCourse(courseId: string | undefined): void {
+    if (courseId) {
+      this._loadingCoursesMap.update((prev) => ({
+        ...prev,
+        [courseId]: true,
+      }));
+      this._errorCourses.set(null);
 
-    this._loadingCoursesMap.update((prev) => ({ ...prev, [courseId]: true }));
-    this._errorCourses.set(null);
-
-    this.assignmentSvc
-      .getAssignmentsByCourse(courseId)
-      .pipe(
-        catchError((err) => {
-          console.error(
-            `error al cargar asignaciones del curso ${courseId}`,
-            err
-          );
-          this._errorCourses.set(
-            'Hubo error al cargar los profesores de uno o mas cursos'
-          );
-          return of([]);
-        }),
-        tap((assignments) => {
-          this._coursesAssignmentsMap.update((prev) => ({
-            ...prev,
-            [courseId]: assignments,
-          }));
-
-          const teachersId: string[] = assignments.map(
-            (a: AssignmentsModel) => a.teacherId
-          );
-
-          const filteredCourses: TeacherModel[] = this.teachersStoreSvc
-            .teachers()
-            .filter((teacher: TeacherModel) =>
-              teachersId.includes(teacher.id!)
+      this.assignmentSvc
+        .getAssignmentsByCourse(courseId)
+        .pipe(
+          catchError((err) => {
+            console.error(
+              `error al cargar asignaciones del curso ${courseId}`,
+              err
             );
-          this._coursesTeachersMap.update((prev) => ({
-            ...prev,
-            [courseId]: filteredCourses,
-          }));
-        }),
-        finalize(() => {
-          this._loadingCoursesMap.update((prev) => ({
-            ...prev,
-            [courseId]: false,
-          }));
-        })
-      )
-      .subscribe();
+            this._errorCourses.set(
+              'Hubo error al cargar los profesores de uno o mas cursos'
+            );
+            return of([]);
+          }),
+          tap((assignments) => {
+            this._coursesAssignmentsMap.update((prev) => ({
+              ...prev,
+              [courseId]: assignments,
+            }));
+
+            const teachersId: string[] = assignments.map(
+              (a: AssignmentsModel) => a.teacherId
+            );
+
+            const filteredCourses: TeacherModel[] = this.teachersStoreSvc
+              .teachers()
+              .filter((teacher: TeacherModel) =>
+                teachersId.includes(teacher.id!)
+              );
+            this._coursesTeachersMap.update((prev) => ({
+              ...prev,
+              [courseId]: filteredCourses,
+            }));
+          }),
+          finalize(() => {
+            this._loadingCoursesMap.update((prev) => ({
+              ...prev,
+              [courseId]: false,
+            }));
+          })
+        )
+        .subscribe();
+    }
   }
 
   //TODO: igual seria guardar en el signal si se cambia el estado de teachers

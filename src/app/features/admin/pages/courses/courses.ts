@@ -150,7 +150,7 @@ export class Courses {
           this.teachersStoreSvc.loadAllTeachers();
           courses.forEach((course: CoursesModel) => {
             this.assignmentsStoreSvc.loadAssignmentsAndTeachersForCourse(
-              course.id!
+              course.id
             );
           });
           setTimeout(() => {
