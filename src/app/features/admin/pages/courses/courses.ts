@@ -148,11 +148,9 @@ export class Courses {
     this.courses$
       .pipe(
         filter((courses: CoursesModel[]) => courses.length > 0),
+        switchMap(() => this.teachersStoreSvc.loadAllTeachers()),
         tap(() => {
-          this.teachersStoreSvc.loadAllTeachers();
-        }),
-        tap((courses) => {
-          courses.forEach((course: CoursesModel) => {
+          this.coursesStoreSvc.courses().forEach((course: CoursesModel) => {
             this.assignmentsStoreSvc.loadAssignmentsAndTeachersForCourse(
               course.id
             );
