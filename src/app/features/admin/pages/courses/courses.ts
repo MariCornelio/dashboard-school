@@ -143,16 +143,21 @@ export class Courses {
 
   ngOnInit(): void {
     this.coursesStoreSvc.loadCoursesIfNeeded();
+    console.log(this.assignmentsStoreSvc.coursesTeachersMap());
+
     this.courses$
       .pipe(
         filter((courses: CoursesModel[]) => courses.length > 0),
-        tap((courses: CoursesModel[]) => {
+        tap(() => {
           this.teachersStoreSvc.loadAllTeachers();
+        }),
+        tap((courses) => {
           courses.forEach((course: CoursesModel) => {
             this.assignmentsStoreSvc.loadAssignmentsAndTeachersForCourse(
               course.id
             );
           });
+
           setTimeout(() => {
             this.tableCourses.first = this.coursesStoreSvc.currentPageCourse();
           });

@@ -97,6 +97,10 @@ export class AssignmentsStoreService {
               ...prev,
               [courseId]: false,
             }));
+            console.log(
+              'teachers de este curso',
+              this.coursesTeachersMap()[courseId]
+            );
           })
         )
         .subscribe();
