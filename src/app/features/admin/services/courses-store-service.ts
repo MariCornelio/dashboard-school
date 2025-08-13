@@ -61,7 +61,7 @@ export class CoursesStoreService {
   createCourse(course: CoursesModel): Observable<CoursesModel> {
     return this.coursesSvc.postCourse(course).pipe(
       tap((newCourse: CoursesModel) => {
-        this._courses.update((prev) => [...prev, newCourse]);
+        this._courses.update((prev) => [newCourse, ...prev]);
       })
     );
   }

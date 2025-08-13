@@ -15,7 +15,9 @@ export class CoursesService {
   constructor(private http: HttpClient) {}
 
   getCourses(): Observable<CoursesModel[]> {
-    return this.http.get<CoursesModel[]>(this.apiURL);
+    return this.http.get<CoursesModel[]>(
+      `${this.apiURL}?_sort=createdAt&_order=desc`
+    );
   }
 
   postCourse(courseData: CoursesModel): Observable<CoursesModel> {

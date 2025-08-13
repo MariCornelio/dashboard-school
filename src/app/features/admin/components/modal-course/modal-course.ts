@@ -119,7 +119,6 @@ export class ModalCourse {
     this.courseFormSubmitted = false;
   }
   onSelectStartDate(date: Date): void {
-    console.log(date);
     this.minDate = date;
     this.courseForm.get('endDate')?.enable();
   }
