@@ -1,0 +1,46 @@
+<div class="card">
+  <p-table #tableCourses [value]="coursesStoreSvc.cursosWidget()" dataKey="id" [rows]="5"
+    [loading]="coursesStoreSvc.loadingCourses()" [showLoader]="false" [tableStyle]="{ 'min-width': '30rem' }"
+    class="overflow-y-hidden">
+    <ng-template #caption>
+      <div class="flex gap-2 items-center justify-between">
+        <p class="font-bold">Cursos agregados recientemente</p>
+        <i class="pi pi-eye !text-xl cursor-pointer p-2" [routerLink]="['/admin/cursos']"></i>
+      </div>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th style="min-width:12rem">Nombre</th>
+        <th style="min-width:12rem">Inicio</th>
+        <th style="min-width:12rem">Fin</th>
+      </tr>
+    </ng-template>
+
+    <!-- Cuando loading = true -->
+    <ng-template #loadingbody>
+      @for (_ of skeletonArray; track $index) {
+      <tr>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+        <td><p-skeleton width="100%"></p-skeleton></td>
+      </tr>
+      }
+    </ng-template>
+
+    <!-- Cuando loading = false -->
+    <ng-template #body let-course>
+      <tr>
+        <td>
+          {{course.name}}
+        </td>
+        <td>{{ course.startDate | date: 'dd/MM/yy'}}</td>
+        <td>{{ course.endDate | date: 'dd/MM/yy' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="10">No se encontró cursos disponibles.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
