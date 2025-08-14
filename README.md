@@ -1,4 +1,4 @@
-# Dashboard School 📚
+# Plataforma Académica 📚
 
 Este proyecto es una plataforma de gestión académica desarrollada con **Angular**, **json-server** y **PrimeNG**. Está diseñada para academias o instituciones que dictan cursos libres y cuenta con paneles diferenciados para **administradores**, **profesores** y **alumnos**.
 
@@ -16,8 +16,8 @@ Este proyecto es una plataforma de gestión académica desarrollada con **Angula
 | Rol           | Ruta base         | Funcionalidad                                                           |
 | ------------- | ----------------- | ----------------------------------------------------------------------- |
 | Admin         | `/admin`          | Panel de control, gestión de profesores, alumnos y cursos               |
-| Profesor      | `/teacher`        | Visualización de cursos asignados, lista de alumnos y registro de notas |
-| Alumno        | `/student`        | Visualización de cursos inscritos y notas                               |
+| Profesor      | `/profesor`       | Visualización de cursos asignados, lista de alumnos y registro de notas |
+| Alumno        | `/alumno`         | Visualización de cursos inscritos y notas                               |
 | Autenticación | `/login` (futuro) | Inicio de sesión según rol (admin, profesor, alumno)                    |
 
 ## 🔧 Tecnologías utilizadas
@@ -53,7 +53,6 @@ src/
 
 - Las imágenes de profesores se almacenarán en cloudinary
 - Al editar un profesor, se actualiza su imagen si corresponde.
-- Al eliminar, se remueve la imagen también desde Firebase.
 
 ## 📌 Estado actual
 
@@ -77,7 +76,7 @@ Este proyecto incorpora prácticas modernas como:
 
 ## 🧠 Decisiones Técnicas y Ruta de Aprendizaje
 
-Este proyecto también representa mi ruta de aprendizaje y aplicación progresiva de buenas prácticas en Angular. A continuación, destaco algunos enfoques implementados y cómo han ido evolucionando:
+Este proyecto es una aplicación progresiva de buenas prácticas en Angular. A continuación, destaco algunos enfoques implementados y cómo han ido evolucionando:
 
 ---
 
@@ -112,51 +111,20 @@ Este proyecto también representa mi ruta de aprendizaje y aplicación progresiv
 
 ### ⚙️ Manejo de Estado con Signals
 
-- Se ha comenzado a aplicar **Angular Signals** de manera progresiva:
+- Se ha comenzado a aplicar **Angular Signals**
   - En `TeachersStore` ya se usan señales como `computed`, `effect`, `signal` para derivar y controlar el estado reactivo.
-  - Se está migrando hacia un manejo más claro y mantenible usando **Signal Store Patterns** para mejorar legibilidad y trazabilidad.
-- Para `CoursesStore` y otras futuras stores se planea una implementación más sólida basada en señales desde el inicio.
-
-## 🚀 Cómo iniciar el proyecto
-
-1. Clona el repositorio
-
-```bash
-git clone https://github.com/MariCornelio/dashboard-school.git
-cd dashboard-school
-```
-
-2. Instala las dependencias
-
-```bash
-npm install
-```
-
-3. Inicia el servidor de desarrollo de Angular
-
-```bash
-ng serve
-```
+  - Se usa **Signal Store Patterns** para mejorar legibilidad y trazabilidad para todas las demás vistas diferentes a la vista profesores.
 
 ## 📦 Backend
 
-Este proyecto usa un backend simulado con `json-server` y `json-server-auth`.
+Durante la etapa inicial del desarrollo, y mientras el backend real se encuentra en construcción, se implementó un backend simulado utilizando `json-server` y `json-server-auth`.
 
-- Archivo base de datos: `db.json`
-- Endpoints simulados para `/teachers`, `/students`, `/courses`, `/assignments`, etc.
+Este enfoque me permitió:
 
-La estructura de datos se encuentra en el repositorio:
-
-🔗 **Repositorio del backend:**  
-[https://github.com/MariCornelio/dashboard-school-mock-server](https://github.com/MariCornelio/dashboard-school-mock-server)
-
-🌐 **Backend publicado en Render:**  
-[https://dashboard-school-mock-server.onrender.com/](https://dashboard-school-mock-server.onrender.com/)
+- Realizar llamadas a API y probar flujos completos de la aplicación sin depender de la infraestructura final.
+- Utilizar un archivo `db.json` como base de datos mock para almacenar y gestionar la información temporalmente.
+- Disponer de endpoints funcionales simulados para `/teachers`, `/students`, `/courses`, `/assignments`, etc.
 
 ## 🧑‍💻 Autora
 
-**Katherina Marilu** – Frontend Developer
-
----
-
-¡Gracias por visitar este proyecto! ⭐ Si te sirvió como inspiración o guía, no olvides dejar tu feedback.
+**Katherina Marilu** – Frontend Developer & Mathematician
