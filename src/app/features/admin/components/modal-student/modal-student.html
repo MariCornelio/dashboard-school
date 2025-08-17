@@ -1,0 +1,118 @@
+<p-toast />
+<!--modal loader -->
+<app-loader-dialog [visible]="isSaving" [message]="loaderMessage" />
+<p-dialog [modal]="true" [(visible)]="visible" styleClass="w-96 md:!w-130" (onHide)="closeDialog()">
+  <ng-template #header>
+    @if (!isEditMode) {
+    <div>
+      <p class="font-medium text-lg">Agregar Estudiante</p>
+      <p class="text-sm text-gray-500">Ingresa los datos del nuevo estudiante</p>
+    </div>
+    }@else {
+    <div>
+      <p class="font-medium text-lg">Editar estudiante</p>
+      <p class="text-sm text-gray-500">Modifica los datos del estudiante</p>
+    </div>
+    }
+
+  </ng-template>
+
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="name" class="font-medium">Nombre*</label>
+      <input pInputText id="name" formControlName="name" autocomplete="name" placeholder="Ej: Marina Torres"
+        [pKeyFilter]="filterAlpha" [invalid]="isInvalid('name')">
+      @if (isInvalid('name')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(studentForm.get('name'), 'Nombre')}}
+      </p-message>
+      }
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="email" class="font-medium">Correo Electrónico*</label>
+      <input pInputText type="email" id="email" formControlName="email" placeholder="Ej: mariana.torres@gmail.com"
+        autocomplete="email" [invalid]="isInvalid('email')">
+      @if (isInvalid('email')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(studentForm.get('email'), 'Correo')}}
+      </p-message>
+      }
+    </div>
+    @if (!isEditMode) {
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="specialty" class="font-medium">Contraseña*</label>
+      <input pInputText type="password" id="password" formControlName="password" placeholder="Ej: ********"
+        maxlength="20" autocomplete="off" [invalid]="isInvalid('password')">
+      @if (isInvalid('password')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(studentForm.get('password'), 'Contraseña')}}
+      </p-message>
+      }
+    </div>
+    }
+    <div class="flex gap-2 w-full">
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="phone" class="font-medium">Teléfono</label>
+        <input pInputText type="tel" id="phone" formControlName="phone" placeholder="Ej: 987654321" autocomplete="off"
+          maxlength="9" pKeyFilter="num" [invalid]="isInvalid('phone')">
+        @if (isInvalid('phone')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(studentForm.get('phone'), 'Teléfono')}}
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="dni" class="font-medium">DNI*</label>
+        <input pInputText type="tel" id="dni" formControlName="dni" placeholder="Ej: 12345678" autocomplete="off"
+          maxlength="8" pKeyFilter="num" [invalid]="isInvalid('dni')">
+        @if (isInvalid('dni')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(studentForm.get('dni'), 'DNI')}}
+        </p-message>
+        }
+      </div>
+    </div>
+
+
+    <div class="flex gap-2 w-full">
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="birthDate" class="font-medium">Fecha de Nacimiento</label>
+        <p-datepicker [iconDisplay]="'input'" [showIcon]="true" inputId="birthDate" placeholder="Ej: 15/07/2025"
+          formControlName="birthDate" appendTo="body" [invalid]="isInvalid('birthDate')" [readonlyInput]="true"
+          [showButtonBar]="true" />
+        @if (isInvalid('birthDate')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(studentForm.get('birthDate'), 'Fecha de Nac.')}}
+        </p-message>
+        }
+      </div>
+      <div class="flex flex-col gap-2 mb-4 w-1/2">
+        <label for="gender" class="font-medium">Género*</label>
+        <p-select formControlName="gender" [options]="genres" [invalid]="isInvalid('gender')" optionLabel="label"
+          optionValue="value" showClear="true" appendTo="body" placeholder="Seleccione género" />
+        @if (isInvalid('gender')) {
+        <p-message severity="error" size="small" variant="simple">
+          {{getErrorMessage(studentForm.get('gender'), 'Género')}}
+        </p-message>
+        }
+      </div>
+    </div>
+    <div class="flex flex-col gap-2 mb-4">
+      <label for="address" class="font-medium">Dirección</label>
+      <input pInputText type="address" id="address" formControlName="address" placeholder="Ej: Av. El Sol VES"
+        autocomplete="off" [invalid]="isInvalid('address')">
+      @if (isInvalid('address')) {
+      <p-message severity="error" size="small" variant="simple">
+        {{getErrorMessage(studentForm.get('address'), 'Dirección')}}
+      </p-message>
+      }
+    </div>
+
+    <div class="flex justify-end gap-2 mt-20">
+      <p-button label="Cancelar" severity="secondary" (click)="closeDialog()" />
+      <button pButton type="submit">
+        <span pButtonLabel>Guardar</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>
