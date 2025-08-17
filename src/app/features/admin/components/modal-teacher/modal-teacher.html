@@ -109,7 +109,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="specialty" class="font-medium">Contraseña</label>
       <input pInputText type="password" id="password" formControlName="password" placeholder="Ej: ********"
-        autocomplete="off" [invalid]="isInvalid('specialty')">
+        maxlength="10" autocomplete="off" [invalid]="isInvalid('password')">
       @if (isInvalid('password')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(teacherForm.get('password'), 'Contraseña')}}
