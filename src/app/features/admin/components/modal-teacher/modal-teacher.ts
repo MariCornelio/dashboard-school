@@ -41,6 +41,7 @@ import { LoaderDialog } from '../../../../shared/components/loader-dialog/loader
 import { TeacherStoreService } from '../../services/teacher-store-service';
 import { UserModel, UserRole } from '../../../../core/models/users.model';
 import { UsersService } from '../../../../core/services/users-service';
+import { NoSpaceInputDirective } from '../../../../shared/directives/no-space-input.directive';
 
 type CourseWithAssignment = CoursesModel & { assignmentId?: string };
 type teacherFormModel = TeacherModel & {
@@ -64,6 +65,7 @@ type teacherFormModel = TeacherModel & {
     ToggleSwitchModule,
     Tooltip,
     LoaderDialog,
+    NoSpaceInputDirective,
   ],
   providers: [MessageService],
   templateUrl: './modal-teacher.html',
@@ -79,6 +81,7 @@ export class ModalTeacher {
 
   filterAlpha: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
   filterAlphaNum: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü0-9\s]+$/;
+  blockSpace: RegExp = /^[^\s]+$/;
 
   teacherForm: FormGroup;
   teacherFormSubmitted: boolean = false;
@@ -391,7 +394,11 @@ export class ModalTeacher {
     this.teacher = {};
     this.teacherForm
       .get('password')
-      ?.setValidators([Validators.required, Validators.maxLength(20)]);
+      ?.setValidators([
+        Validators.required,
+        Validators.pattern('^[^\\s]+$'),
+        Validators.maxLength(20),
+      ]);
     this.teacherForm.get('password')?.updateValueAndValidity();
   }
 

@@ -21,7 +21,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="name" class="font-medium">Nombre*</label>
       <input pInputText id="name" formControlName="name" autocomplete="name" placeholder="Ej: Marina Torres"
-        [pKeyFilter]="filterAlpha" [invalid]="isInvalid('name')">
+        [pKeyFilter]="filterAlpha" [invalid]="isInvalid('name')" appNoSpaceInput>
       @if (isInvalid('name')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(studentForm.get('name'), 'Nombre')}}
@@ -31,7 +31,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="email" class="font-medium">Correo Electrónico*</label>
       <input pInputText type="email" id="email" formControlName="email" placeholder="Ej: mariana.torres@gmail.com"
-        autocomplete="email" [invalid]="isInvalid('email')">
+        autocomplete="email" [invalid]="isInvalid('email')" appNoSpaceInput>
       @if (isInvalid('email')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(studentForm.get('email'), 'Correo')}}
@@ -42,7 +42,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="specialty" class="font-medium">Contraseña*</label>
       <input pInputText type="password" id="password" formControlName="password" placeholder="Ej: ********"
-        maxlength="20" autocomplete="off" [invalid]="isInvalid('password')">
+        maxlength="20" autocomplete="off" [invalid]="isInvalid('password')" [pKeyFilter]="blockSpace">
       @if (isInvalid('password')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(studentForm.get('password'), 'Contraseña')}}
@@ -100,7 +100,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="address" class="font-medium">Dirección</label>
       <input pInputText type="address" id="address" formControlName="address" placeholder="Ej: Av. El Sol VES"
-        autocomplete="off" [invalid]="isInvalid('address')">
+        autocomplete="off" [invalid]="isInvalid('address')" appNoSpaceInput>
       @if (isInvalid('address')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(studentForm.get('address'), 'Dirección')}}
