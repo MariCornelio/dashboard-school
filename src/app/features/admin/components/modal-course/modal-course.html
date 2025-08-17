@@ -21,7 +21,7 @@
     <div class="flex flex-col gap-2 mb-4">
       <label for="name" class="font-medium">Nombre</label>
       <input pInputText id="name" formControlName="name" autocomplete="off" placeholder="Ej: Angular"
-        [invalid]="isInvalid('name')">
+        [invalid]="isInvalid('name')" appNoSpaceInput>
       @if (isInvalid('name')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(courseForm.get('name'), 'Nombre')}}
@@ -100,7 +100,7 @@
       <label for="description" class="font-medium">Descripción</label>
       <textarea pTextarea rows="2" cols="5" id="description" formControlName="description"
         placeholder="Ej: Framework de desarrollo web para crear aplicaciones dinámicas, rápidas y escalables."
-        autocomplete="off" [invalid]="isInvalid('description')"></textarea>
+        autocomplete="off" [invalid]="isInvalid('description')" appNoSpaceInput></textarea>
       @if (isInvalid('description')) {
       <p-message severity="error" size="small" variant="simple">
         {{getErrorMessage(courseForm.get('description'), 'Descripción')}}

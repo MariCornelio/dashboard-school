@@ -29,6 +29,7 @@ import { AssignmentsStoreService } from '../../services/assignments-store-servic
 import { AssignmentsModel } from '../../../../core/models/assignments.model';
 import { CoursesStoreService } from '../../services/courses-store-service';
 import { catchError, EMPTY, finalize, switchMap, tap } from 'rxjs';
+import { NoSpaceInputDirective } from '../../../../shared/directives/no-space-input.directive';
 
 type CourseFormModel = CoursesModel & {
   teachers: TeacherModel[];
@@ -50,6 +51,7 @@ type CourseFormModel = CoursesModel & {
     InputNumber,
     TextareaModule,
     LoaderDialog,
+    NoSpaceInputDirective,
   ],
   providers: [MessageService],
   templateUrl: './modal-course.html',

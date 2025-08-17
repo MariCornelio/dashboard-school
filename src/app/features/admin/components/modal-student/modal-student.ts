@@ -24,6 +24,7 @@ import { Select } from 'primeng/select';
 import { UserModel, UserRole } from '../../../../core/models/users.model';
 import { UsersService } from '../../../../core/services/users-service';
 import { catchError, EMPTY, finalize, switchMap, tap } from 'rxjs';
+import { NoSpaceInputDirective } from '../../../../shared/directives/no-space-input.directive';
 
 type studentFormModel = StudentModel & {
   password?: 'string';
@@ -42,6 +43,7 @@ type studentFormModel = StudentModel & {
     KeyFilter,
     Select,
     LoaderDialog,
+    NoSpaceInputDirective,
   ],
   providers: [MessageService],
   templateUrl: './modal-student.html',
@@ -55,6 +57,7 @@ export class ModalStudent {
   genres!: any[];
 
   filterAlpha: RegExp = /^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/;
+  blockSpace: RegExp = /^[^\s]+$/;
 
   studentForm: FormGroup;
   studentFormSubmitted: boolean = false;
@@ -265,7 +268,11 @@ export class ModalStudent {
     this.student = {};
     this.studentForm
       .get('password')
-      ?.setValidators([Validators.required, Validators.maxLength(20)]);
+      ?.setValidators([
+        Validators.required,
+        Validators.pattern('^[^\\s]+$'),
+        Validators.maxLength(20),
+      ]);
     this.studentForm.get('password')?.updateValueAndValidity();
   }
 
