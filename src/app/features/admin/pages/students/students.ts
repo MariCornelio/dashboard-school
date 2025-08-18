@@ -15,6 +15,8 @@ import { MessageService } from 'primeng/api';
 import { StudentModel } from '../../../../core/models/student.model';
 import { GenderLabelPipe } from '../../../../shared/pipes/genderLabel.pipe';
 import { ModalStudent } from '../../components/modal-student/modal-student';
+import { UsersService } from '../../../../core/services/users-service';
+import { catchError, EMPTY, finalize, tap } from 'rxjs';
 
 @Component({
   selector: 'app-students',
@@ -48,7 +50,8 @@ export class Students {
   @ViewChild(ModalStudent) componentModalStudent!: ModalStudent;
   constructor(
     public studentStoreSvc: StudentStoreService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private userSvc: UsersService
   ) {
     effect(() => {
       const errorStudent = this.studentStoreSvc.errorStudents();
@@ -84,5 +87,33 @@ export class Students {
     this.componentModalStudent.editStudent(student);
   }
 
-  deleteStudent(student: StudentModel): void {}
+  deleteStudent(student: StudentModel): void {
+    this.loadingDeleteStudent = true;
+    this.userSvc
+      .deleteUser(student.userId!)
+      .pipe(
+        catchError((err) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Ocurrio un error al eliminar estudiante',
+          });
+          console.error('Error al eliminar el usuario estudiante', err);
+          return EMPTY;
+        }),
+        tap(() => {
+          this.studentStoreSvc.deleteStudentVerified(student.id!);
+          this.messageService.add({
+            severity: 'success',
+            summary: 'estudiante Eliminado',
+            detail: 'El estudiante fue eliminado correctamente',
+            life: 5000,
+          });
+        }),
+        finalize(() => {
+          this.loadingDeleteStudent = false;
+        })
+      )
+      .subscribe();
+  }
 }
