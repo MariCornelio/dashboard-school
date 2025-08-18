@@ -89,4 +89,11 @@ export class StudentStoreService {
       })
     );
   }
+
+  // se hace esto por eliminacion en cascada de json-server
+  deleteStudentVerified(studentId: string) {
+    this._students.update((prev) =>
+      prev.filter((c: StudentModel) => c.id !== studentId)
+    );
+  }
 }
